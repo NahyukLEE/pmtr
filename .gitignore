@@ -1,0 +1,10 @@
+build/
+checkpoint/
+common/__pycache__/
+*/__pycache__/
+dist/
+lightning_logs/
+model/backbone/__pycache__
+model/backbone/kpconv/__pycache__
+pmtr.egg-info/
+wandb/
