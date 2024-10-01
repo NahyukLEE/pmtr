@@ -47,6 +47,8 @@ Additional arguments can be found in [`test.py`](./test.py).
 ```
 python test.py --data_category {everyday, artifact} --fine_matcher {pmt, none} --load {ckp_path} 
 ```
+### Checkpoints (Pairwise Assembly)
+Checkpoints for both `everyday` and `artifact` subsets are available on our [[Google Drive](https://drive.google.com/drive/folders/1N7uXu0xR1O9cpPnJTP7d6susR6hDj5nn?usp=sharing)].
 
 ## BibTeX
 If you use this code for your research, please consider citing:
