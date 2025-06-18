@@ -16,11 +16,12 @@ from scipy.spatial.transform import Rotation
 import random
 
 class PMTR(pl.LightningModule):
-    def __init__(self, fine_matcher, cpconv_radius, lr):
+    def __init__(self, fine_matcher, cpconv_radius, lr, evaluate=True):
         super(PMTR, self).__init__()
 
         self.lr = lr
-
+        self.evaluate = evaluate
+        
         # Initialization
         self.npts_per_node = 128
         self.matching_radius = 0.02
@@ -158,8 +159,9 @@ class PMTR(pl.LightningModule):
         loss = self.training_objective(out_dict, in_dict)
         loss = self._compute_orthloss(loss)
 
-        eval_dict = self.evaluate_prediction(in_dict, out_dict)
-        loss.update(eval_dict)
+        if self.evaluate:
+            eval_dict = self.evaluate_prediction(in_dict, out_dict)
+            loss.update(eval_dict)
 
         # in training we log for every step
         if mode == 'train' and self.local_rank == 0:

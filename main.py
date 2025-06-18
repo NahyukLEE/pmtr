@@ -19,8 +19,8 @@ def main(args):
 
     # Dataset initialization
     GADataset.initialize(args.datapath, args.data_category)
-    dataloader_trn = GADataset.build_dataloader(args.batch_size, args.n_worker, 'train', args.sub_category, args.n_pts, args.subsampling_radius)
-    dataloader_val = GADataset.build_dataloader(args.batch_size, args.n_worker, 'val', args.sub_category, args.n_pts, args.subsampling_radius)
+    dataloader_trn = GADataset.build_dataloader(args.batch_size, args.n_worker, 'train', args.sub_category, args.n_pts, args.subsampling_radius, args.mpa)
+    dataloader_val = GADataset.build_dataloader(args.batch_size, args.n_worker, 'val', args.sub_category, args.n_pts, args.subsampling_radius, args.mpa)
 
     # Create checkpoint directory
     SLURM_JOB_ID = os.environ.get('SLURM_JOB_ID')
@@ -116,6 +116,8 @@ if __name__ == '__main__':
     parser.add_argument('--sub_category', type=str, default='all')
     parser.add_argument('--n_pts', type=int, default=5000)
     
+    parser.add_argument('--mpa', action='store_true')
+
     # model hyperparameters
     parser.add_argument('--cpconv_radius', type=float, default=0.05)
     parser.add_argument('--fine_matcher', type=str, default='pmt', choices=['none', 'pmt'])

@@ -12,10 +12,11 @@ import trimesh
 import logging
 
 from scipy.spatial.transform import Rotation as R
+from scipy.spatial import cKDTree
 from common.sampling import subsampling
 
 class DatasetBreakingBad(Dataset):
-    def __init__(self, datapath, data_category, split, sub_category, n_pts, subsampling_radius):
+    def __init__(self, datapath, data_category, split, sub_category, n_pts, subsampling_radius, mpa):
         self.datapath = datapath
         self.data_category = data_category
         self.split = split
@@ -23,10 +24,12 @@ class DatasetBreakingBad(Dataset):
         self.n_pts = n_pts
         self.min_n_pts = 256
         self.min_part = 2
-        self.max_part = 2
+        self.max_part = 2 if not mpa else 20
         self.subsampling_radius = subsampling_radius
         self.anchor_idx = 0
+        self.mpa = mpa
 
+        if self.split == 'test': split = 'val'
         filepaths = join('./data/data_list', f"{data_category}_{split}.txt")
         with open(filepaths, 'r') as f:
             self.filepaths = [x.strip() for x in f.readlines() if x.strip()]
@@ -38,7 +41,7 @@ class DatasetBreakingBad(Dataset):
         self.filepaths = [x.split()[1] for x in self.filepaths]
 
     def __len__(self):
-        return len(self.filepaths)
+        return 10 # len(self.filepaths)
 
     def _translate(self, mesh, pcd):
         gt_trans = [p.mean(dim=0) for p in pcd]
@@ -68,11 +71,15 @@ class DatasetBreakingBad(Dataset):
             # Save relative transformation between each pairs
             key = f"{pair_idx0}-{pair_idx1}"
             permut_relative_transform[key] = relative_rotat, relative_trans
-        return {'0-1':permut_relative_transform['0-1']}
+        
+        if self.mpa and self.split == 'test':
+            return permut_relative_transform
+        else:
+            return {'0-1':permut_relative_transform['0-1']}
 
     def __getitem__(self, idx):
         # Fix randomness
-        if self.split == 'val': np.random.seed(idx)
+        if self.split in ['val', 'test']: np.random.seed(idx)
 
         # Read mesh, point cloud of a fractured object
         logger = logging.getLogger("trimesh")
@@ -118,8 +125,14 @@ class DatasetBreakingBad(Dataset):
 
         return batch
 
+    def _extract_fracture_points(self, src_pcd, trg_pcd, distance_threshold = 0.015):
+        kdtree = cKDTree(trg_pcd)
+        distances, _ = kdtree.query(src_pcd, k=1, workers=-1)
+        src_fracture_points = src_pcd[distances < distance_threshold]
+        return src_fracture_points
+    
     def read_obj_data(self, idx):
-        if self.split == 'val': random.seed(idx)
+        if self.split in ['val', 'test']: random.seed(idx)
         np.seterr(divide='ignore', invalid='ignore')
         
         filepath = self.filepaths[idx]
@@ -147,7 +160,31 @@ class DatasetBreakingBad(Dataset):
                 sampled_pts = torch.cat([sampled_pts, torch.tensor(extra_pts).float()], dim=0)
             
             pcd_all.append(sampled_pts)
+        
+        if self.split == 'test':
+            return mesh_all, pcd_all
+        
+        if self.mpa:
+            # Select source and target point clouds for matching
+            src_idx = random.randint(0, n_frac-1)
+            src_pcd = pcd_all[src_idx]
+            
+            # Find target with most fracture points matching source
+            other_pcds = pcd_all[:src_idx] + pcd_all[src_idx+1:]
+            other_meshes = mesh_all[:src_idx] + mesh_all[src_idx+1:]
+            fracture_point_counts = [
+                self._extract_fracture_points(src_pcd, pcd).size(0) 
+                for pcd in other_pcds
+            ]
+            trg_idx = fracture_point_counts.index(max(fracture_point_counts))
+            trg_pcd = other_pcds[trg_idx]
+            trg_mesh = other_meshes[trg_idx]
 
+            # Store matched pairs
+            mesh_all = [mesh_all[src_idx], trg_mesh]
+            pcd_all = [src_pcd, trg_pcd] 
+        
+        # Randomly flip order during training
         if self.split == 'train' and random.random() > 0.5:
             mesh_all.reverse()
             pcd_all.reverse()

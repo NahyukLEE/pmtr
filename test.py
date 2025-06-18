@@ -20,7 +20,7 @@ def test(args):
     
     # Dataset initialization
     GADataset.initialize(args.datapath, args.data_category)
-    dataloader_val = GADataset.build_dataloader(args.batch_size, args.n_worker, 'val', args.sub_category, args.n_pts, args.subsampling_radius)
+    dataloader_val = GADataset.build_dataloader(args.batch_size, args.n_worker, 'test', args.sub_category, args.n_pts, args.subsampling_radius)
 
     trainer = pl.Trainer(gpus=[0])
     trainer.test(model, dataloader_val, ckpt_path=args.load)

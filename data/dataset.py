@@ -10,11 +10,11 @@ class GADataset:
         cls.data_category = data_category
 
     @classmethod
-    def build_dataloader(cls, batch_size, nworker, split, sub_category, n_pts, subsampling_radius):
+    def build_dataloader(cls, batch_size, nworker, split, sub_category, n_pts, subsampling_radius, mpa=False):
         training = split == 'train'
         shuffle = training
 
-        dataset = DatasetBreakingBad(cls.datapath, cls.data_category, split, sub_category, n_pts, subsampling_radius)
+        dataset = DatasetBreakingBad(cls.datapath, cls.data_category, split, sub_category, n_pts, subsampling_radius, mpa)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=nworker)
 
         return dataloader
