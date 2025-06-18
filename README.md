@@ -1,8 +1,9 @@
 # [ICML'24] 3D Geometric Shape Assembly via Efficient Point Cloud Matching
 
-**[UPDATE]** Code and checkpoints for multi-part assembly has been released!
+📢 **[Update]** Multi-part assembly support is here!
+Code and pretrained checkpoints have been released.
 
-This is the implementation of the paper "3D Geometric Shape Assembly via Efficient Point Cloud Matching" by [Nahyuk Lee](https://nahyuklee.github.io/), [Juhong Min](https://juhongm999.github.io/), [Junha Lee](https://junha-l.github.io/), [Seungwook Kim](https://wookiekim.github.io/), Kanghee Lee, [Jaesik Park](https://jaesik.info/) and [Minsu Cho](https://cvlab.postech.ac.kr/~mcho/). Implemented on Python 3.8 and Pytorch 1.10.1.
+This is the implementation of the paper "3D Geometric Shape Assembly via Efficient Point Cloud Matching" by [Nahyuk Lee](https://nahyuklee.github.io/), [Juhong Min](https://juhongm999.github.io/), [Junha Lee](https://junha-l.github.io/), [Seungwook Kim](https://wookiekim.github.io/), [Kanghee Lee](https://scholar.google.com/citations?user=s-haNkwAAAAJ&hl=en), [Jaesik Park](https://jaesik.info/) and [Minsu Cho](https://cvlab.postech.ac.kr/~mcho/). Implemented on Python 3.8 and Pytorch 1.10.1.
 
 <p align="middle">
     <img src="data/assets/pmtr_architecture.png">
