@@ -41,7 +41,7 @@ class DatasetBreakingBad(Dataset):
         self.filepaths = [x.split()[1] for x in self.filepaths]
 
     def __len__(self):
-        return 10 # len(self.filepaths)
+        return len(self.filepaths)
 
     def _translate(self, mesh, pcd):
         gt_trans = [p.mean(dim=0) for p in pcd]
